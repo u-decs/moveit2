@@ -102,6 +102,10 @@ add_library(${SERVO_CONTROLLER_INPUT} SHARED src/teleop_demo/joystick_servo_exam
 ament_target_dependencies(${SERVO_CONTROLLER_INPUT} ${THIS_PACKAGE_INCLUDE_DEPENDS})
 rclcpp_components_register_nodes(${SERVO_CONTROLLER_INPUT} "moveit_servo::JoyToServoPub")
 
+add_library(${SERVO_CONTROLLER_INPUT} SHARED src/teleop_demo/joystick_servo_manipulator.cpp)
+ament_target_dependencies(${SERVO_CONTROLLER_INPUT} ${THIS_PACKAGE_INCLUDE_DEPENDS})
+rclcpp_components_register_nodes(${SERVO_CONTROLLER_INPUT} "moveit_servo::JoyToServoPub")
+
 ######################
 ## Executable Nodes ##
 ######################
