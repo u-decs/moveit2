@@ -284,7 +284,7 @@ void MotionPlanningDisplay::toggleSelectPlanningGroupSubscription(bool enable)
   if (enable)
   {
     planning_group_sub_ = node_->create_subscription<std_msgs::msg::String>(
-        "/rviz/moveit/select_planning_group", 1,
+        "/rviz/moveit/select_planning_group", rclcpp::SystemDefaultsQoS(),
         [this](const std_msgs::msg::String::ConstSharedPtr& msg) { return selectPlanningGroupCallback(msg); });
   }
   else
@@ -1422,8 +1422,9 @@ void MotionPlanningDisplay::fixedFrameChanged()
   if (int_marker_display_)
     int_marker_display_->setFixedFrame(fixed_frame_);
   // When the fixed frame changes we need to tell RViz to update the rendered interactive marker display
-  frame_->scene_marker_->requestPoseUpdate(frame_->scene_marker_->getPosition(),
-                                           frame_->scene_marker_->getOrientation());
+  if (frame_ && frame_->scene_marker_)
+    frame_->scene_marker_->requestPoseUpdate(frame_->scene_marker_->getPosition(),
+                                             frame_->scene_marker_->getOrientation());
   changedPlanningGroup();
 }
 

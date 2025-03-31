@@ -38,8 +38,17 @@
 #include <moveit/pointcloud_octomap_updater/pointcloud_octomap_updater.h>
 #include <moveit/occupancy_map_monitor/occupancy_map_monitor.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+// TODO: Remove conditional includes when released to all active distros.
+#if __has_include(<tf2/LinearMath/Vector3.hpp>)
+#include <tf2/LinearMath/Vector3.hpp>
+#else
 #include <tf2/LinearMath/Vector3.h>
+#endif
+#if __has_include(<tf2/LinearMath/Transform.hpp>)
+#include <tf2/LinearMath/Transform.hpp>
+#else
 #include <tf2/LinearMath/Transform.h>
+#endif
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <tf2_ros/create_timer_interface.h>
 #include <tf2_ros/create_timer_ros.h>
@@ -100,14 +109,21 @@ void PointCloudOctomapUpdater::start()
   if (!ns_.empty())
     prefix = ns_ + "/";
 
+  rclcpp::QoS qos(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_sensor_data));
   if (!filtered_cloud_topic_.empty())
+  {
     filtered_cloud_publisher_ =
-        node_->create_publisher<sensor_msgs::msg::PointCloud2>(prefix + filtered_cloud_topic_, 10);
+        node_->create_publisher<sensor_msgs::msg::PointCloud2>(prefix + filtered_cloud_topic_, rclcpp::SensorDataQoS());
+  }
 
   if (point_cloud_subscriber_)
     return;
+
+  rclcpp::SubscriptionOptions options;
+  options.callback_group = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   /* subscribe to point cloud topic using tf filter*/
-  point_cloud_subscriber_ = new message_filters::Subscriber<sensor_msgs::msg::PointCloud2>(node_, point_cloud_topic_);
+  point_cloud_subscriber_ = new message_filters::Subscriber<sensor_msgs::msg::PointCloud2>(
+      node_, point_cloud_topic_, rmw_qos_profile_sensor_data, options);
   if (tf_listener_ && tf_buffer_ && !monitor_->getMapFrame().empty())
   {
     point_cloud_filter_ = new tf2_ros::MessageFilter<sensor_msgs::msg::PointCloud2>(
@@ -314,8 +330,11 @@ void PointCloudOctomapUpdater::cloudMsgCallback(const sensor_msgs::msg::PointClo
 
     /* compute the free cells along each ray that ends at a clipped cell */
     for (const octomap::OcTreeKey& clip_cell : clip_cells)
+    {
+      free_cells.insert(clip_cell);
       if (tree_->computeRayKeys(sensor_origin, tree_->keyToCoord(clip_cell), key_ray_))
         free_cells.insert(key_ray_.begin(), key_ray_.end());
+    }
   }
   catch (...)
   {

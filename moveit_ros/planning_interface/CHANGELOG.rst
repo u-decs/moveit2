@@ -2,6 +2,41 @@
 Changelog for package moveit_ros_planning_interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.5.8 (2025-02-09)
+------------------
+* Reverts `#2985 <https://github.com/ros-planning/moveit2/issues/2985>`_, Ports moveit `#3388 <https://github.com/ros-planning/moveit2/issues/3388>`_ `#3470 <https://github.com/ros-planning/moveit2/issues/3470>`_ `#3539 <https://github.com/ros-planning/moveit2/issues/3539>`_ (backport `#3284 <https://github.com/ros-planning/moveit2/issues/3284>`_) (`#3319 <https://github.com/ros-planning/moveit2/issues/3319>`_)
+* Update deprecated tf2 imports from .h to .hpp (backport `#3197 <https://github.com/ros-planning/moveit2/issues/3197>`_) (`#3199 <https://github.com/ros-planning/moveit2/issues/3199>`_)
+* Contributors: Sebastian Castro, Michael Görner, Robert Haschke, Mark Johnson, mergify[bot]
+
+2.5.7 (2024-12-29)
+------------------
+* Enhancement/moveit ros1 ports (backport `#3041 <https://github.com/ros-planning/moveit2/issues/3041>`_) (`#3118 <https://github.com/ros-planning/moveit2/issues/3118>`_)
+* Contributors: Tom Noble, Mark Johnson
+
+2.5.6 (2024-11-17)
+------------------
+
+2.5.5 (2023-09-10)
+------------------
+* 400% speed up to move group interface (`#1865 <https://github.com/ros-planning/moveit2/issues/1865>`_) (`#1867 <https://github.com/ros-planning/moveit2/issues/1867>`_)
+  (cherry picked from commit 0642ef064df512566ffb171f5a889f4c7886110d)
+  Co-authored-by: azalutsky <azalutsky@gmail.com>
+* Cleanup msg includes: Use C++ instead of C header (backport `#1844 <https://github.com/ros-planning/moveit2/issues/1844>`_)
+  * Cleanup msg includes: Use C++ instead of C header
+  * Remove obsolete include: moveit_msgs/srv/execute_known_trajectory.hpp
+* Use <> for non-local headers (`#1765 <https://github.com/ros-planning/moveit2/issues/1765>`_)
+  Unless a header lives in the same or a child directory of the file
+  including it, it's recommended to use <> for the #include statement.
+  For more information, see the C++ Core Guidelines item SF.12
+  https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#sf12-prefer-the-quoted-form-of-include-for-files-relative-to-the-including-file-and-the-angle-bracket-form-everywhere-else
+  (cherry picked from commit 7a1f2a101f9aeb8557e8a31656bbe1a6d53b430e)
+* Re-enable clang-tidy check `performance-unnecessary-value-param` (backport `#1703 <https://github.com/ros-planning/moveit2/issues/1703>`_)
+  * Re-enable clang-tidy check performance-unnecessary-value-param (`#1703 <https://github.com/ros-planning/moveit2/issues/1703>`_)
+  * Fix clang-tidy issues (`#1706 <https://github.com/ros-planning/moveit2/issues/1706>`_)
+  Co-authored-by: Henning Kayser <henningkayser@picknik.ai>
+  Co-authored-by: Robert Haschke <rhaschke@users.noreply.github.com>
+* Contributors: Chris Thrasher, Robert Haschke, mergify[bot]
+
 2.5.4 (2022-11-04)
 ------------------
 * Improve CMake usage (`#1550 <https://github.com/ros-planning/moveit2/issues/1550>`_) (`#1555 <https://github.com/ros-planning/moveit2/issues/1555>`_)

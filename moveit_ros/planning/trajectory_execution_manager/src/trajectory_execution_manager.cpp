@@ -97,9 +97,6 @@ void TrajectoryExecutionManager::initialize()
   allowed_execution_duration_scaling_ = DEFAULT_CONTROLLER_GOAL_DURATION_SCALING;
   allowed_goal_duration_margin_ = DEFAULT_CONTROLLER_GOAL_DURATION_MARGIN;
 
-  // load controller-specific values for allowed_execution_duration_scaling and allowed_goal_duration_margin
-  loadControllerParams();
-
   // load the controller manager plugin
   try
   {
@@ -179,6 +176,10 @@ void TrajectoryExecutionManager::initialize()
 
   // other configuration steps
   reloadControllerInformation();
+
+  // load controller-specific values for allowed_execution_duration_scaling and allowed_goal_duration_margin
+  loadControllerParams();
+
   // The default callback group for rclcpp::Node is MutuallyExclusive which means we cannot call
   // receiveEvent while processing a different callback. To fix this we create a new callback group (the type is not
   // important since we only use it to process one callback) and associate event_topic_subscriber_ with this callback group
@@ -186,7 +187,7 @@ void TrajectoryExecutionManager::initialize()
   auto options = rclcpp::SubscriptionOptions();
   options.callback_group = callback_group;
   event_topic_subscriber_ = node_->create_subscription<std_msgs::msg::String>(
-      EXECUTION_EVENT_TOPIC, 100,
+      EXECUTION_EVENT_TOPIC, rclcpp::SystemDefaultsQoS(),
       [this](const std_msgs::msg::String::ConstSharedPtr& event) { return receiveEvent(event); }, options);
 
   controller_mgr_node_->get_parameter("trajectory_execution.execution_duration_monitoring",
@@ -1316,6 +1317,7 @@ void TrajectoryExecutionManager::clear()
 {
   if (execution_complete_)
   {
+    std::scoped_lock slock(execution_state_mutex_);
     for (TrajectoryExecutionContext* trajectory : trajectories_)
       delete trajectory;
     trajectories_.clear();
@@ -1329,7 +1331,7 @@ void TrajectoryExecutionManager::clear()
     }
   }
   else
-    RCLCPP_ERROR(LOGGER, "Cannot push a new trajectory while another is being executed");
+    RCLCPP_FATAL(LOGGER, "Expecting execution_complete_ to be true!");
 }
 
 void TrajectoryExecutionManager::executeThread(const ExecutionCompleteCallback& callback,
@@ -1365,7 +1367,13 @@ void TrajectoryExecutionManager::executeThread(const ExecutionCompleteCallback& 
 
   // only report that execution finished successfully when the robot actually stopped moving
   if (last_execution_status_ == moveit_controller_manager::ExecutionStatus::SUCCEEDED)
-    waitForRobotToStop(*trajectories_[i - 1]);
+  {
+    std::scoped_lock slock(execution_state_mutex_);
+    if (!execution_complete_)
+    {
+      waitForRobotToStop(*trajectories_[i - 1]);
+    }
+  }
 
   RCLCPP_INFO(LOGGER, "Completed trajectory execution with status %s ...", last_execution_status_.asString().c_str());
 
@@ -1836,24 +1844,23 @@ bool TrajectoryExecutionManager::ensureActiveControllers(const std::vector<std::
 
 void TrajectoryExecutionManager::loadControllerParams()
 {
-  // TODO: Revise XmlRpc parameter lookup
-  // XmlRpc::XmlRpcValue controller_list;
-  // if (node_->get_parameter("controller_list", controller_list) &&
-  //     controller_list.getType() == XmlRpc::XmlRpcValue::TypeArray)
-  // {
-  //   for (int i = 0; i < controller_list.size(); ++i)  // NOLINT(modernize-loop-convert)
-  //   {
-  //     XmlRpc::XmlRpcValue& controller = controller_list[i];
-  //     if (controller.hasMember("name"))
-  //     {
-  //       if (controller.hasMember("allowed_execution_duration_scaling"))
-  //         controller_allowed_execution_duration_scaling_[std::string(controller["name"])] =
-  //             controller["allowed_execution_duration_scaling"];
-  //       if (controller.hasMember("allowed_goal_duration_margin"))
-  //         controller_allowed_goal_duration_margin_[std::string(controller["name"])] =
-  //             controller["allowed_goal_duration_margin"];
-  //     }
-  //   }
-  // }
+  for (const auto& controller : known_controllers_)
+  {
+    const std::string& controller_name = controller.first;
+    for (const auto& controller_manager_name : controller_manager_loader_->getDeclaredClasses())
+    {
+      const std::string parameter_prefix =
+          controller_manager_loader_->getClassPackage(controller_manager_name) + "." + controller_name;
+
+      double allowed_execution_duration_scaling;
+      if (node_->get_parameter(parameter_prefix + ".allowed_execution_duration_scaling",
+                               allowed_execution_duration_scaling))
+        controller_allowed_execution_duration_scaling_.insert({ controller_name, allowed_execution_duration_scaling });
+
+      double allowed_goal_duration_margin;
+      if (node_->get_parameter(parameter_prefix + ".allowed_goal_duration_margin", allowed_goal_duration_margin))
+        controller_allowed_goal_duration_margin_.insert({ controller_name, allowed_goal_duration_margin });
+    }
+  }
 }
 }  // namespace trajectory_execution_manager

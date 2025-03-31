@@ -2,6 +2,27 @@
 Changelog for package chomp_motion_planner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.5.8 (2025-02-09)
+------------------
+* Use ! in place of not keyword for Pilz and CHOMP planners (`#3217 <https://github.com/ros-planning/moveit2/issues/3217>`_) (`#3221 <https://github.com/ros-planning/moveit2/issues/3221>`_)
+* Update deprecated tf2 imports from .h to .hpp (backport `#3197 <https://github.com/ros-planning/moveit2/issues/3197>`_) (`#3199 <https://github.com/ros-planning/moveit2/issues/3199>`_)
+* Contributors: Sebastian Castro, Silvio Traversaro, mergify[bot]
+
+2.5.7 (2024-12-29)
+------------------
+
+2.5.6 (2024-11-17)
+------------------
+
+2.5.5 (2023-09-10)
+------------------
+* Switch to clang-format-14 (`#1877 <https://github.com/ros-planning/moveit2/issues/1877>`_) (`#1880 <https://github.com/ros-planning/moveit2/issues/1880>`_)
+  * Switch to clang-format-14
+  * Fix clang-format-14
+  (cherry picked from commit 7fa5eaf1ac21ab8a99c5adae53bd0a2d4abf98f6)
+  Co-authored-by: Henning Kayser <henningkayser@picknik.ai>
+* Contributors: mergify[bot]
+
 2.5.4 (2022-11-04)
 ------------------
 * updated comment formatting for correct doxygen generation (`#1582 <https://github.com/ros-planning/moveit2/issues/1582>`_) (`#1664 <https://github.com/ros-planning/moveit2/issues/1664>`_)

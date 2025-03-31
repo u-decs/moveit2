@@ -2,6 +2,43 @@
 Changelog for package moveit_kinematics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.5.8 (2025-02-09)
+------------------
+* Update deprecated tf2 imports from .h to .hpp (backport `#3197 <https://github.com/ros-planning/moveit2/issues/3197>`_) (`#3199 <https://github.com/ros-planning/moveit2/issues/3199>`_)
+* Contributors: Sebastian Castro, mergify[bot]
+
+2.5.7 (2024-12-29)
+------------------
+
+2.5.6 (2024-11-17)
+------------------
+* CI: Fix building of ikfast plugins (`#2791 <https://github.com/ros-planning/moveit2/issues/2791>`_)
+* Contributors: Robert Haschke, mergify[bot]
+
+2.5.5 (2023-09-10)
+------------------
+* Fix ikfast package template (`#2195 <https://github.com/ros-planning/moveit2/issues/2195>`_) (`#2199 <https://github.com/ros-planning/moveit2/issues/2199>`_)
+  (cherry picked from commit 21036b58e99876928b46e3cc4603a9eb9b85e11d)
+  Co-authored-by: Jafar <cafer.abdi@gmail.com>
+* Fix clang compiler warnings (backport of `#1712 <https://github.com/ros-planning/moveit2/issues/1712>`_) (`#1896 <https://github.com/ros-planning/moveit2/issues/1896>`_)
+  - Fix warning: definition of implicit copy assignment operator is deprecated
+  - Fix warning: expression with side effects will be evaluated
+  - Fix warning: passing by value
+  - Enable -Werror
+  - Fix -Wdelete-non-abstract-non-virtual-dtor
+  - Fix more clang warnings
+  - Modernize gtest: TYPED_TEST_CASE -> TYPED_TEST_SUITE
+  - Fix GoogleTestVerification.UninstantiatedTypeParameterizedTestSuite
+  - Add default copy/move constructors/assignment operators
+  As a user-declared destructor deletes any implicitly-defined move constructor/assignment operator,
+  we need to declared them manually. This in turn requires to declare the copy constructor/assignment as well.
+  - Explicitly declare overrides
+  - Add default constructors as they are not implicitly declared anymore
+  - Declare selected classes as final
+  - Add noexcept specifier to constructors
+  - Fixup gmock/gtest warnings
+* Contributors: Robert Haschke, mergify[bot]
+
 2.5.4 (2022-11-04)
 ------------------
 * Backport to Humble (`#1642 <https://github.com/ros-planning/moveit2/issues/1642>`_)

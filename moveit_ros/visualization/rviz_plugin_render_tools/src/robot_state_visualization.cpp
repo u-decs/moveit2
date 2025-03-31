@@ -124,11 +124,9 @@ void RobotStateVisualization::updateHelper(const moveit::core::RobotStateConstPt
     {
       std::map<std::string, std_msgs::msg::ColorRGBA>::const_iterator it = color_map->find(attached_body->getName());
       if (it != color_map->end())
-      {  // render attached bodies with a color that is a bit different
-        color.r = std::max(1.0f, it->second.r * 1.05f);
-        color.g = std::max(1.0f, it->second.g * 1.05f);
-        color.b = std::max(1.0f, it->second.b * 1.05f);
-        alpha = color.a = it->second.a;
+      {
+        color = it->second;
+        alpha = color.a;
       }
     }
     rviz_default_plugins::robot::RobotLink* link = robot_.getLink(attached_body->getAttachedLinkName());
@@ -137,7 +135,7 @@ void RobotStateVisualization::updateHelper(const moveit::core::RobotStateConstPt
       RCLCPP_ERROR_STREAM(LOGGER, "Link " << attached_body->getAttachedLinkName() << " not found in rviz::Robot");
       continue;
     }
-    Ogre::ColourValue rcolor(color.r, color.g, color.b);
+    Ogre::ColourValue rcolor(color.r, color.g, color.b, color.a);
     const EigenSTL::vector_Isometry3d& ab_t = attached_body->getShapePosesInLinkFrame();
     const std::vector<shapes::ShapeConstPtr>& ab_shapes = attached_body->getShapes();
     for (std::size_t j = 0; j < ab_shapes.size(); ++j)

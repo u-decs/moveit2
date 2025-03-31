@@ -184,7 +184,7 @@ void TrajectoryVisualization::onInitialize(const rclcpp::Node::SharedPtr& node, 
   }
 
   trajectory_topic_sub_ = node_->create_subscription<moveit_msgs::msg::DisplayTrajectory>(
-      trajectory_topic_property_->getStdString(), 2,
+      trajectory_topic_property_->getStdString(), rclcpp::SystemDefaultsQoS(),
       [this](const moveit_msgs::msg::DisplayTrajectory::ConstSharedPtr& msg) { return incomingDisplayTrajectory(msg); });
 }
 
@@ -270,6 +270,7 @@ void TrajectoryVisualization::changedShowTrail()
     if (enable_robot_color_property_->getBool())
       setRobotColor(&(r->getRobot()), robot_color_property_->getColor());
     r->setVisible(display_->isEnabled() && (!animating_path_ || waypoint_i <= current_state_));
+    r->updateAttachedObjectColors(default_attached_object_color_);
     trajectory_trail_[i] = std::move(r);
   }
 }
@@ -293,7 +294,7 @@ void TrajectoryVisualization::changedTrajectoryTopic()
   if (!trajectory_topic_property_->getStdString().empty() && robot_state_)
   {
     trajectory_topic_sub_ = node_->create_subscription<moveit_msgs::msg::DisplayTrajectory>(
-        trajectory_topic_property_->getStdString(), 2,
+        trajectory_topic_property_->getStdString(), rclcpp::SystemDefaultsQoS(),
         [this](const moveit_msgs::msg::DisplayTrajectory::ConstSharedPtr& msg) {
           return incomingDisplayTrajectory(msg);
         });
@@ -534,6 +535,7 @@ void TrajectoryVisualization::update(float wall_dt, float sim_dt)
   display_path_robot_->setVisible(display_->isEnabled() && displaying_trajectory_message_ &&
                                   (animating_path_ || trail_display_property_->getBool() ||
                                    (trajectory_slider_panel_ && trajectory_slider_panel_->isVisible())));
+  display_path_robot_->updateAttachedObjectColors(default_attached_object_color_);
 }
 
 void TrajectoryVisualization::incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::ConstSharedPtr& msg)

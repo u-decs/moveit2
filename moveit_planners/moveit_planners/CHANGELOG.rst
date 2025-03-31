@@ -2,6 +2,20 @@
 Changelog for package moveit_planners
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.5.8 (2025-02-09)
+------------------
+* fix chomp depend, closes `#3228 <https://github.com/ros-planning/moveit2/issues/3228>`_ (backport `#3229 <https://github.com/ros-planning/moveit2/issues/3229>`_) (`#3230 <https://github.com/ros-planning/moveit2/issues/3230>`_)
+* Contributors: Michael Ferguson, mergify[bot]
+
+2.5.7 (2024-12-29)
+------------------
+
+2.5.6 (2024-11-17)
+------------------
+
+2.5.5 (2023-09-10)
+------------------
+
 2.5.4 (2022-11-04)
 ------------------
 * Improve CMake usage (`#1550 <https://github.com/ros-planning/moveit2/issues/1550>`_) (`#1555 <https://github.com/ros-planning/moveit2/issues/1555>`_)

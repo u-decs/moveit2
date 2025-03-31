@@ -2,6 +2,63 @@
 Changelog for package moveit_ros_planning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.5.8 (2025-02-09)
+------------------
+* load robot_description from other namespace (backport `#3269 <https://github.com/ros-planning/moveit2/issues/3269>`_) (`#3324 <https://github.com/ros-planning/moveit2/issues/3324>`_)
+* Ports moveit `#3676 <https://github.com/ros-planning/moveit2/issues/3676>`_ and `#3682 <https://github.com/ros-planning/moveit2/issues/3682>`_ (backport `#3283 <https://github.com/ros-planning/moveit2/issues/3283>`_) (`#3317 <https://github.com/ros-planning/moveit2/issues/3317>`_)
+* [moveit_ros] fix race condition when stopping trajectory execution (backport `#3198 <https://github.com/ros-planning/moveit2/issues/3198>`_) (`#3239 <https://github.com/ros-planning/moveit2/issues/3239>`_)
+* move TrajectoryExecutionManager::clear() to private (backport `#3226 <https://github.com/ros-planning/moveit2/issues/3226>`_) (`#3237 <https://github.com/ros-planning/moveit2/issues/3237>`_)
+* Don't destroy objects on attach (backport `#3205 <https://github.com/ros-planning/moveit2/issues/3205>`_) (`#3213 <https://github.com/ros-planning/moveit2/issues/3213>`_)
+* Simplify scene update that does not include new robot_state (`#3206 <https://github.com/ros-planning/moveit2/issues/3206>`_) (`#3207 <https://github.com/ros-planning/moveit2/issues/3207>`_)
+* Fix planning_scene_monitor sync when passed empty robot state (`#3187 <https://github.com/ros-planning/moveit2/issues/3187>`_) (`#3203 <https://github.com/ros-planning/moveit2/issues/3203>`_)
+* Update deprecated tf2 imports from .h to .hpp (backport `#3197 <https://github.com/ros-planning/moveit2/issues/3197>`_) (`#3199 <https://github.com/ros-planning/moveit2/issues/3199>`_)
+* Contributors: Sebastian Castro, Michael Görner, Robert Haschke, Dongya Jiang, Mark Johnson, Marq Rasmussen, RLi43, mergify[bot]
+
+2.5.7 (2024-12-29)
+------------------
+* Add sleep in setup of flaky PSM test fixture (`#3126 <https://github.com/ros-planning/moveit2/issues/3126>`_)
+* Contributors: Sebastian Castro
+
+2.5.6 (2024-11-17)
+------------------
+* PSM: keep references to scene\_ valid upon receiving full scenes (`#2850 <https://github.com/ros-planning/moveit2/issues/2850>`_)
+* Protect against zero frequency in TrajectoryMonitorMiddlewareHandler (`#2423 <https://github.com/ros-planning/moveit2/issues/2423>`_) (`#2424 <https://github.com/ros-planning/moveit2/issues/2424>`_)
+* Re-enable waiting for current state in MoveItCpp (`#2419 <https://github.com/ros-planning/moveit2/issues/2419>`_) (`#2426 <https://github.com/ros-planning/moveit2/issues/2426>`_)
+* Contributors: Robert Haschke, Sebastian Castro, Henning Kayser, mergify[bot]
+
+2.5.5 (2023-09-10)
+------------------
+* Replaced numbers with SystemDefaultsQos() (`#2271 <https://github.com/ros-planning/moveit2/issues/2271>`_) (`#2277 <https://github.com/ros-planning/moveit2/issues/2277>`_)
+  (cherry picked from commit 5506dd516a91bc145e462b493668ef8623d43521)
+  Co-authored-by: Shobuj Paul <72087882+Shobuj-Paul@users.noreply.github.com>
+* Update default planning configs to use AddTimeOptimalParameterization (`#2167 <https://github.com/ros-planning/moveit2/issues/2167>`_) (`#2170 <https://github.com/ros-planning/moveit2/issues/2170>`_)
+  (cherry picked from commit 895e9268bd5d9337bebdede07a7f68a99055a1df)
+  Co-authored-by: Anthony Baker <abake48@users.noreply.github.com>
+* Fix timeout in waitForCurrentState (backport `#1899 <https://github.com/ros-planning/moveit2/issues/1899>`_) (`#1938 <https://github.com/ros-planning/moveit2/issues/1938>`_)
+  (cherry picked from commit 2c48478ac9b4ccfa6784f0e3a9cbf92ef1ecd363)
+  Co-authored-by: Carlo Rizzardo <c-rizz@users.noreply.github.com>
+  Co-authored-by: Henning Kayser <henningkayser@picknik.ai>
+* Switch to clang-format-14 (`#1877 <https://github.com/ros-planning/moveit2/issues/1877>`_) (`#1880 <https://github.com/ros-planning/moveit2/issues/1880>`_)
+  * Switch to clang-format-14
+  * Fix clang-format-14
+  (cherry picked from commit 7fa5eaf1ac21ab8a99c5adae53bd0a2d4abf98f6)
+  Co-authored-by: Henning Kayser <henningkayser@picknik.ai>
+* Cleanup msg includes: Use C++ instead of C header (backport `#1844 <https://github.com/ros-planning/moveit2/issues/1844>`_)
+  * Cleanup msg includes: Use C++ instead of C header
+  * Remove obsolete include: moveit_msgs/srv/execute_known_trajectory.hpp
+* Use <> for non-local headers (`#1765 <https://github.com/ros-planning/moveit2/issues/1765>`_)
+  Unless a header lives in the same or a child directory of the file
+  including it, it's recommended to use <> for the #include statement.
+  For more information, see the C++ Core Guidelines item SF.12
+  https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#sf12-prefer-the-quoted-form-of-include-for-files-relative-to-the-including-file-and-the-angle-bracket-form-everywhere-else
+  (cherry picked from commit 7a1f2a101f9aeb8557e8a31656bbe1a6d53b430e)
+* Re-enable clang-tidy check `performance-unnecessary-value-param` (backport `#1703 <https://github.com/ros-planning/moveit2/issues/1703>`_)
+  * Re-enable clang-tidy check performance-unnecessary-value-param (`#1703 <https://github.com/ros-planning/moveit2/issues/1703>`_)
+  * Fix clang-tidy issues (`#1706 <https://github.com/ros-planning/moveit2/issues/1706>`_)
+  Co-authored-by: Henning Kayser <henningkayser@picknik.ai>
+  Co-authored-by: Robert Haschke <rhaschke@users.noreply.github.com>
+* Contributors: Chris Thrasher, Robert Haschke, mergify[bot]
+
 2.5.4 (2022-11-04)
 ------------------
 * Backport to Humble (`#1642 <https://github.com/ros-planning/moveit2/issues/1642>`_)

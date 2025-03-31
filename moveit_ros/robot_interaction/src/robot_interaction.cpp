@@ -44,7 +44,12 @@
 #include <interactive_markers/menu_handler.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+// TODO: Remove conditional include when released to all active distros.
+#if __has_include(<tf2/LinearMath/Transform.hpp>)
+#include <tf2/LinearMath/Transform.hpp>
+#else
 #include <tf2/LinearMath/Transform.h>
+#endif
 
 #include <algorithm>
 #include <limits>
@@ -574,8 +579,8 @@ void RobotInteraction::toggleMoveInteractiveMarkerTopic(bool enable)
             [this, marker_name](const geometry_msgs::msg::PoseStamped::SharedPtr& msg) {
               moveInteractiveMarker(marker_name, *msg);
             };
-        auto subscription =
-            node_->create_subscription<geometry_msgs::msg::PoseStamped>(topic_name, 1, subscription_callback);
+        auto subscription = node_->create_subscription<geometry_msgs::msg::PoseStamped>(
+            topic_name, rclcpp::SystemDefaultsQoS(), subscription_callback);
         int_marker_move_subscribers_.push_back(subscription);
       }
     }

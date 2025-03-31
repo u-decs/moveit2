@@ -799,29 +799,41 @@ void RobotState::updateStateWithLinkAt(const LinkModel* link, const Eigen::Isome
         global_link_transforms_[attached_body.second->getAttachedLink()->getLinkIndex()]);
 }
 
-const LinkModel* RobotState::getRigidlyConnectedParentLinkModel(const std::string& frame) const
+const LinkModel* RobotState::getLinkModelIncludingAttachedBodies(const std::string& frame) const
 {
-  const moveit::core::LinkModel* link{ nullptr };
-
-  size_t idx = 0;
-  if ((idx = frame.find('/')) != std::string::npos)
-  {  // resolve sub frame
-    std::string object{ frame.substr(0, idx) };
-    if (!hasAttachedBody(object))
-      return nullptr;
-    auto body{ getAttachedBody(object) };
-    if (!body->hasSubframeTransform(frame))
-      return nullptr;
-    link = body->getAttachedLink();
-  }
-  else if (hasAttachedBody(frame))
+  // If the frame is a link, return that link.
+  if (getRobotModel()->hasLinkModel(frame))
   {
-    link = getAttachedBody(frame)->getAttachedLink();
+    return getLinkModel(frame);
   }
-  else if (getRobotModel()->hasLinkModel(frame))
-    link = getLinkModel(frame);
 
-  return getRobotModel()->getRigidlyConnectedParentLinkModel(link);
+  // If the frame is an attached body, return the link the body is attached to.
+  if (const auto it = attached_body_map_.find(frame); it != attached_body_map_.end())
+  {
+    const auto& body{ it->second };
+    return body->getAttachedLink();
+  }
+
+  // If the frame is a subframe of an attached body, return the link the body is attached to.
+  for (const auto& it : attached_body_map_)
+  {
+    const auto& body{ it.second };
+    if (body->hasSubframeTransform(frame))
+    {
+      return body->getAttachedLink();
+    }
+  }
+
+  // If the frame is none of the above, return nullptr.
+  return nullptr;
+}
+
+const LinkModel* RobotState::getRigidlyConnectedParentLinkModel(const std::string& frame,
+                                                                const moveit::core::JointModelGroup* jmg) const
+{
+  const LinkModel* link = getLinkModelIncludingAttachedBodies(frame);
+
+  return getRobotModel()->getRigidlyConnectedParentLinkModel(link, jmg);
 }
 
 bool RobotState::satisfiesBounds(double margin) const
@@ -1683,40 +1695,34 @@ bool RobotState::setFromIK(const JointModelGroup* jmg, const EigenSTL::vector_Is
 
       if (pose_frame != solver_tip_frame)
       {
-        if (hasAttachedBody(pose_frame))
+        auto* pose_parent = getRigidlyConnectedParentLinkModel(pose_frame);
+        if (!pose_parent)
         {
-          const AttachedBody* body = getAttachedBody(pose_frame);
-          pose_frame = body->getAttachedLinkName();
-          pose = pose * body->getPose().inverse();
+          RCLCPP_ERROR_STREAM(LOGGER, "The following Pose Frame does not exist: " << pose_frame);
+          return false;
         }
-        if (pose_frame != solver_tip_frame)
+        Eigen::Isometry3d pose_parent_to_frame = getFrameTransform(pose_frame);
+        auto* tip_parent = getRigidlyConnectedParentLinkModel(solver_tip_frame);
+        if (!tip_parent)
         {
-          const moveit::core::LinkModel* link_model = getLinkModel(pose_frame);
-          if (!link_model)
-          {
-            RCLCPP_ERROR(LOGGER, "The following Pose Frame does not exist: %s", pose_frame.c_str());
-            return false;
-          }
-          const moveit::core::LinkTransformMap& fixed_links = link_model->getAssociatedFixedTransforms();
-          for (const std::pair<const LinkModel* const, Eigen::Isometry3d>& fixed_link : fixed_links)
-            if (Transforms::sameFrame(fixed_link.first->getName(), solver_tip_frame))
-            {
-              pose_frame = solver_tip_frame;
-              pose = pose * fixed_link.second;
-              break;
-            }
+          RCLCPP_ERROR_STREAM(LOGGER, "The following Solver Tip Frame does not exist: " << solver_tip_frame);
+          return false;
         }
-
-      }  // end if pose_frame
-
-      // Check if this pose frame works
-      if (pose_frame == solver_tip_frame)
+        Eigen::Isometry3d tip_parent_to_tip = getFrameTransform(solver_tip_frame);
+        if (pose_parent == tip_parent)
+        {
+          // transform goal pose as target for solver_tip_frame (instead of pose_frame)
+          pose = pose * pose_parent_to_frame.inverse() * tip_parent_to_tip;
+          found_valid_frame = true;
+          break;
+        }
+      }
+      else
       {
         found_valid_frame = true;
         break;
-      }
-
-    }  // end for solver_tip_frames
+      }  // end if pose_frame
+    }    // end for solver_tip_frames
 
     // Make sure one of the tip frames worked
     if (!found_valid_frame)
@@ -1849,8 +1855,8 @@ bool RobotState::setFromIKSubgroups(const JointModelGroup* jmg, const EigenSTL::
   {
     if (consistency_limits[i].size() != sub_groups[i]->getVariableCount())
     {
-      RCLCPP_ERROR(LOGGER, "Number of joints in consistency_limits is %zu but it should be should be %u", i,
-                   sub_groups[i]->getVariableCount());
+      RCLCPP_ERROR(LOGGER, "Number of joints in consistency_limits[%zu] is %lu but it should be should be %u", i,
+                   consistency_limits[i].size(), sub_groups[i]->getVariableCount());
       return false;
     }
   }
