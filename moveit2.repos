@@ -7,5 +7,5 @@ repositories:
   # https://github.com/ros-planning/moveit_resources/pull/147
   moveit_resources:
     type: git
-    url: https://github.com/ros-planning/moveit_resources.git
+    url: https://github.com/u-decs/moveit_resources.git
     version: humble
