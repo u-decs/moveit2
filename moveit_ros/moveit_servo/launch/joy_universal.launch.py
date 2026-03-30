@@ -242,35 +242,6 @@ def generate_launch_description():
         package="rclcpp_components",
         executable="component_container_mt",
         composable_node_descriptions=[
-            # Example of launching Servo as a node component
-            # Assuming ROS2 intraprocess communications works well, this is a more efficient way.
-            # ComposableNode(
-            #     package="moveit_servo",
-            #     plugin="moveit_servo::ServoServer",
-            #     name="servo_server",
-            #     parameters=[
-            #         servo_params,
-            #         moveit_config.robot_description,
-            #         moveit_config.robot_description_semantic,
-            #     ],
-            # ),
-            ComposableNode(
-                package="robot_state_publisher",
-                plugin="robot_state_publisher::RobotStatePublisher",
-                name="robot_state_publisher",
-                parameters=[robot_description],
-            ),
-            ComposableNode(
-                package="tf2_ros",
-                plugin="tf2_ros::StaticTransformBroadcasterNode",
-                name="static_tf2_broadcaster",
-                parameters=[{"child_frame_id": "/base_link", "frame_id": "/world"}],
-            ),
-            ComposableNode(
-                package="moveit_servo",
-                plugin="moveit_servo::JoyToServoPub",
-                name="controller_to_servo_node",
-            ),
             ComposableNode(
                 package="joy",
                 plugin="joy::Joy",
@@ -367,7 +338,7 @@ def generate_launch_description():
             # ros2_control_node,
             # joint_state_broadcaster_spawner,
             # ur_arm_controller_spawner,
-            servo_node,
+            # servo_node,
             container,
         ]
     )

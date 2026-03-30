@@ -58,7 +58,7 @@
 const std::string JOY_TOPIC = "/joy";
 const std::string TWIST_TOPIC = "/servo_node/delta_twist_cmds";
 const std::string JOINT_TOPIC = "/servo_node/delta_joint_cmds";
-const std::string EEF_FRAME_ID = "camera_link";
+const std::string EEF_FRAME_ID = "tool0";
 const std::string BASE_FRAME_ID = "base_link";
 
 // Enums for button names -> axis/button array index
@@ -126,15 +126,15 @@ bool convertJoyToCmd(const std::vector<float>& axes, const std::vector<int>& but
   }
 
   // The bread and butter: map buttons to twist commands
-  twist->twist.linear.z = axes[RIGHT_STICK_Y];
-  twist->twist.linear.y = axes[RIGHT_STICK_X];
+  twist->twist.linear.x = -axes[RIGHT_STICK_Y];
+  twist->twist.linear.y = -axes[RIGHT_STICK_X];
 
   double lin_x_right = -0.5 * (axes[RIGHT_TRIGGER] - AXIS_DEFAULTS.at(RIGHT_TRIGGER));
   double lin_x_left = 0.5 * (axes[LEFT_TRIGGER] - AXIS_DEFAULTS.at(LEFT_TRIGGER));
-  twist->twist.linear.x = lin_x_right + lin_x_left;
+  twist->twist.linear.z = lin_x_right + lin_x_left;
 
   twist->twist.angular.y = axes[LEFT_STICK_Y];
-  twist->twist.angular.x = axes[LEFT_STICK_X];
+  twist->twist.angular.x = -axes[LEFT_STICK_X];
 
   double roll_positive = buttons[RIGHT_BUMPER];
   double roll_negative = -1 * (buttons[LEFT_BUMPER]);
@@ -157,10 +157,10 @@ void updateCmdFrame(std::string& frame_name, const std::vector<int>& buttons)
 
 namespace moveit_servo
 {
-class JoyToServoPub2 : public rclcpp::Node
+class JoyToServoPub : public rclcpp::Node
 {
 public:
-  JoyToServoPub2(const rclcpp::NodeOptions& options)
+  JoyToServoPub(const rclcpp::NodeOptions& options)
     : Node("joy_to_twist_publisher", options), frame_to_publish_(BASE_FRAME_ID)
   {
     // Setup pub/sub
@@ -220,7 +220,7 @@ public:
     // });
   }
 
-  ~JoyToServoPub2() override
+  ~JoyToServoPub() override
   {
     if (collision_pub_thread_.joinable())
       collision_pub_thread_.join();
@@ -262,10 +262,10 @@ private:
   std::string frame_to_publish_;
 
   std::thread collision_pub_thread_;
-};  // class JoyToServoPub2
+};  // class JoyToServoPub
 
 }  // namespace moveit_servo
 
 // Register the component with class_loader
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(moveit_servo::JoyToServoPub2)
+RCLCPP_COMPONENTS_REGISTER_NODE(moveit_servo::JoyToServoPub)
