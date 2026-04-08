@@ -12,7 +12,7 @@
 
   <license>BSD</license>
 
-  <url type="website">http://moveit.ros.org</url>
+  <url type="website">http://moveit.ai</url>
   <url type="bugtracker">https://github.com/ros-planning/moveit2/issues</url>
   <url type="repository">https://github.com/ros-planning/moveit2</url>
 
@@ -42,7 +42,6 @@
   <depend>octomap_msgs</depend>
   <depend>octomap</depend>
   <depend>pluginlib</depend>
-  <depend>pybind11_vendor</depend>
   <depend>random_numbers</depend>
   <depend>rclcpp</depend>
   <depend>ruckig</depend>
